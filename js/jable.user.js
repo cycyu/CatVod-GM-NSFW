@@ -9,6 +9,27 @@
 // ==/UserScript==
 console.log('jable user scrpit');
 $(document).ready(function () {
+    function listVideos(result) {
+        result.total = parseInt($(".content-header .title-box .inactive-color").text());
+        result.pagecount = Math.ceil(result.total / result.limit);
+        $("[id^='list_videos_'] .row:first .video-img-box").each(function (i) {
+            const subTitle = $(this).find(".sub-title").text().split('\n');
+            const remarks = [
+                "👁️" + subTitle[1].trim(),
+                "❤️" + subTitle[2].trim()
+            ];
+            const url = new URL($(this).find(".img-box a").attr("href"));
+            result.list.push({
+                vod_id: url.pathname.split('/').at(2).toUpperCase(),
+                vod_name: $(this).find(".title").text(),
+                vod_pic: $(this).find(".img-box img").data("src"),
+                vod_remarks: remarks.join(" "),
+                vod_year: $(this).find(".absolute-bottom-right").text()
+            })
+        });
+        return result;
+    }
+
     unsafeWindow.GmSpider = (function () {
         return {
             homeContent: function () {
@@ -120,23 +141,7 @@ $(document).ready(function () {
                     });
                     result.pagecount = 1;
                 } else {
-                    result.total = parseInt($(".content-header .title-box .inactive-color").text());
-                    result.pagecount = Math.ceil(result.total / result.limit);
-                    $("[id^='list_videos_'] .row:first .video-img-box").each(function (i) {
-                        const subTitle = $(this).find(".sub-title").text().split('\n')
-                        const remarks = [
-                            "👁️" + subTitle[1],
-                            "❤️" + subTitle[2]
-                        ];
-                        const url = new URL($(this).find(".img-box a").attr("href"));
-                        result.list.push({
-                            vod_id: url.pathname.split('/').at(2).toUpperCase(),
-                            vod_name: $(this).find(".title").text(),
-                            vod_pic: $(this).find(".img-box img").data("src"),
-                            vod_remarks: remarks.join(" "),
-                            vod_year: $(this).find(".absolute-bottom-right").text()
-                        })
-                    });
+                    listVideos(result);
                 }
                 console.log(JSON.stringify(result));
                 return result;
@@ -182,23 +187,7 @@ $(document).ready(function () {
                     page: pg,
                     pagecount: 0
                 };
-                result.total = parseInt($(".content-header .title-box .inactive-color").text());
-                result.pagecount = Math.ceil(result.total / result.limit);
-                $("[id^='list_videos_'] .row:first .video-img-box").each(function (i) {
-                    const subTitle = $(this).find(".sub-title").text().split('\n')
-                    const remarks = [
-                        "👁️" + subTitle[1],
-                        "❤️" + subTitle[2]
-                    ];
-                    const url = new URL($(this).find(".img-box a").attr("href"));
-                    result.list.push({
-                        vod_id: url.pathname.split('/').at(2).toUpperCase(),
-                        vod_name: $(this).find(".title").text(),
-                        vod_pic: $(this).find(".img-box img").data("src"),
-                        vod_remarks: remarks.join(" "),
-                        vod_year: $(this).find(".absolute-bottom-right").text(),
-                    })
-                });
+                listVideos(result);
                 console.log(JSON.stringify(result));
                 return result;
             }
@@ -206,4 +195,3 @@ $(document).ready(function () {
     })();
     GmSpiderInject.NoticeSpiderReady();
 });
-
