@@ -48,6 +48,54 @@
           }
         }
       }
+    },
+    {
+      "key": "nJAV",
+      "name": "nJAV",
+      "type": 3,
+      "searchable": 1,
+      "changeable": 0,
+      "style": {
+        "type": "rect",
+        "ratio": 1.49
+      },
+      "api": "csp_GM",
+      "ext": {
+        "userScript": "./js/njav.user.js",
+        "debug": false,
+        "webViewSettings": {
+          "blockNetworkImage": true,
+          "blockList": [
+            "*.ico",
+            "*.png",
+            "*.jpg",
+            "*.vtt",
+            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css",
+            "https://fonts.googleapis.com/*",
+            "https://www.googletagmanager.com/*",
+            "https://*.recombee.com/*",
+            "https://*.google-analytics.com/*",
+            "https://javplayer.me/assets/media/dist/app.js*"
+          ]
+        },
+        "spider": {
+          "homeContent": {
+            "loadUrl": "https://njav.tv/zh/"
+          },
+          "categoryContent": {
+            "loadUrl": "https://njav.tv/zh/${tid}?page=${pg:-1}${filter:-}${sort:-}"
+          },
+          "detailContent": {
+            "loadUrl": "https://njav.tv/zh/v/${id}"
+          },
+          "playerContent": {
+            "loadUrl": "${id}"
+          },
+          "searchContent": {
+            "loadUrl": "https://njav.tv/zh/search?keyword=${key}&page=${pg:-1}"
+          }
+        }
+      }
     }
   ]
 }
