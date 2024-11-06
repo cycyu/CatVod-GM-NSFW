@@ -82,7 +82,7 @@ $(document).ready(function () {
         }
 
         function getIdFromHref(href) {
-            return href.split("/").at(1);
+            return href.split("/").pop();
         }
 
         function Video(id, data) {
@@ -156,26 +156,31 @@ $(document).ready(function () {
                 return result;
             },
             detailContent: function (ids) {
-                // let vodActor = [];
-                // $(".video-info .info-header .models .model").each(function () {
-                //     const url = new URL($(this).attr("href")).pathname.split('/');
-                //     const id = url[1] + "/" + url[2];
-                //     const name = $(this).find(".rounded-circle").data("original-title");
-                //     vodActor.push(`[a=cr:{"id":"${id}","name":"${name}"}/]${name}[/a]`);
-                // });
                 let detail = {};
                 $("#details .detail-item div").each(function (item) {
-                    detail[$(this).find("span:first").text().replace(":", "")] = $(this).find("span:eq(1)").text();
+                    const key = $(this).find("span:first").text().replace(":", "");
+                    if ($(this).find("span:eq(1) a").length === 0) {
+                        detail[key] = $(this).find("span:eq(1)").text();
+                    } else {
+                        detail[key] = [];
+                        $(this).find("span:eq(1) a").each(function () {
+                            const id = $(this).attr("href");
+                            const name = $(this).text();
+                            detail[key].push(`[a=cr:{"id":"${id}","name":"${name}"}/]${name}[/a]`);
+                        })
+                    }
                 });
                 const vod = {
                     vod_id: ids[0],
                     vod_name: $(".favourite:first").data("code"),
                     vod_pic: $("#player").attr("poster"),
-                    vod_remarks: detail["发布日期"],
-                    vod_actor: detail["演员"],
+                    vod_year: detail["发布日期"],
+                    vod_remarks: detail["类型"].join(" "),
+                    vod_director: detail["制作者"].join(" ") + " " + detail["标签"].join(" "),
+                    vod_actor: detail["演员"].join(" "),
                     vod_content: $(".justify-content-between").text(),
                     vod_play_from: "nJAV",
-                    vod_play_url: $(".favourite:first").data("code") + "$" + $($("#player").get(0).innerHTML).attr("src"),
+                    vod_play_url: "720P$" + $($("#player").get(0).innerHTML).attr("src"),
                 };
                 console.log(JSON.stringify({list: [vod]}))
                 return {list: [vod]};
@@ -207,5 +212,9 @@ $(document).ready(function () {
             }
         };
     })();
-    GmSpiderProxy(GmSpider);
+    if (typeof (GmSpiderProxy) === 'undefined') {
+        alert(JSON.stringify(GmSpider.detailContent(["snis-539"])));
+    } else {
+        GmSpiderProxy(GmSpider);
+    }
 });

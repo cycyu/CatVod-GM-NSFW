@@ -5,7 +5,6 @@
 // @description  Jable的gmspider
 // @author       Luomo
 // @match        https://jable.tv/*
-// @grant        unsafeWindow
 // ==/UserScript==
 console.log('jable user scrpit');
 $(document).ready(function () {
@@ -30,6 +29,7 @@ $(document).ready(function () {
             });
             return result;
         }
+
         return {
             homeContent: function () {
                 const result = {
@@ -146,34 +146,35 @@ $(document).ready(function () {
                 return result;
             },
             detailContent: function (ids) {
-                let vodActor = [];
+                let vodActor = [], categories = [], tags = [];
                 $(".video-info .info-header .models .model").each(function () {
                     const url = new URL($(this).attr("href")).pathname.split('/');
                     const id = url[1] + "/" + url[2];
                     const name = $(this).find(".rounded-circle").data("original-title");
                     vodActor.push(`[a=cr:{"id":"${id}","name":"${name}"}/]${name}[/a]`);
                 });
-                // $(".video-info .tags .cat").each(function () {
-                //     const url = new URL($(this).attr("href")).pathname.split('/');
-                //     const id = url[1] + "/" + url[2];
-                //     const name = $(this).text();
-                //     vodActor.push(`[a=cr:{"id":"${id}","name":"${name}"}/]#${name}[/a]`);
-                // });
-                // $(".video-info .tags a:not(.cat)").each(function () {
-                //     const url = new URL($(this).attr("href")).pathname.split('/');
-                //     const id = url[1] + "/" + url[2];
-                //     const name = $(this).text();
-                //     vodActor.push(`[a=cr:{"id":"${id}","name":"${name}"}/]#${name}[/a]`);
-                // });
+                $(".video-info .tags .cat").each(function () {
+                    const url = new URL($(this).attr("href")).pathname.split('/');
+                    const id = url[1] + "/" + url[2];
+                    const name = $(this).text();
+                    categories.push(`[a=cr:{"id":"${id}","name":"${name}"}/]#${name}[/a]`);
+                });
+                $(".video-info .tags a:not(.cat)").each(function () {
+                    const url = new URL($(this).attr("href")).pathname.split('/');
+                    const id = url[1] + "/" + url[2];
+                    const name = $(this).text();
+                    tags.push(`[a=cr:{"id":"${id}","name":"${name}"}/]#${name}[/a]`);
+                });
                 const vod = {
                     vod_id: ids[0],
                     vod_name: ids[0].toUpperCase(),
                     vod_pic: $("#player").attr("poster"),
-                    vod_remarks: "更新於 " + $(".video-info .info-header .mr-3:first").text() + " " + $(".video-info .info-header .inactive-color").text(),
-                    vod_actor: vodActor.join(" "),
+                    vod_year: "更新於 " + $(".video-info .info-header .mr-3:first").text() + " " + $(".video-info .info-header .inactive-color").text(),
+                    vod_remarks: tags.join(" "),
+                    vod_actor: vodActor.join(" ") + " " + categories.join(" "),
                     vod_content: $(".video-info h4").text(),
                     vod_play_from: $(".video-info .info-header .header-right h6").children().remove().end().text().trim(),
-                    vod_play_url: ids[0].toUpperCase() + "$" + unsafeWindow.hlsUrl,
+                    vod_play_url: "1080P$" + unsafeWindow.hlsUrl,
                 };
                 console.log(JSON.stringify({list: [vod]}))
                 return {list: [vod]};
@@ -192,5 +193,9 @@ $(document).ready(function () {
             }
         };
     })();
-    GmSpiderProxy(GmSpider);
+    if (typeof (GmSpiderProxy) === 'undefined') {
+        // console.log(GmSpider.detailContent(["meyd-707"]));
+    } else {
+        GmSpiderProxy(GmSpider);
+    }
 });
