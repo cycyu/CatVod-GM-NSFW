@@ -18,8 +18,9 @@
         "webViewSettings": {
           "blockNetworkImage": true,
           "blockList": [
-            "*.ico",
-            "*.png",
+            "*.ico*",
+            "*.png*",
+            "*.css*",
             "https://*.adsco.re/*",
             "https://*.googleapis.com/*",
             "https://*.googlesyndication.com/*",
@@ -35,7 +36,7 @@
         },
         "spider": {
           "homeContent": {
-            "loadUrl": "https://jable.tv"
+            "loadUrl": "https://jable.tv/"
           },
           "categoryContent": {
             "loadUrl": "https://jable.tv/${tid:-latest-updates}/?from=${pg:-1}${sort_by:-}"
@@ -70,13 +71,12 @@
             "*.png",
             "*.jpg",
             "*.vtt",
-            "*.css?*",
-            "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css",
+            "*.css*",
             "https://fonts.googleapis.com/*",
             "https://www.googletagmanager.com/*",
             "https://*.recombee.com/*",
             "https://*.google-analytics.com/*",
-            "https://javplayer.me/assets/media/dist/app.js?*"
+            "https://javplayer.me/assets/media/dist/app.js*"
           ]
         },
         "spider": {

@@ -9,7 +9,6 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js
 // ==/UserScript==
 console.log('nJAV user scrpit');
-const $ = self.$
 $(document).ready(function () {
     const GmSpider = (function () {
         const filter = {
@@ -92,7 +91,7 @@ $(document).ready(function () {
 
         return {
             homeContent: function () {
-                const result = {
+                let result = {
                     class: [
                         {type_id: "recent-update", type_name: "最近更新"},
                         {type_id: "new-release", type_name: "全新上市"},
@@ -115,6 +114,20 @@ $(document).ready(function () {
                     parse: 0,
                     jx: 0
                 };
+                const canonical = $("head link[rel=canonical]").attr("href");
+                const base = $("head base").attr('href');
+                if (canonical.includes(base)) {
+                    let urlPrefix = canonical.replace(base, "");
+                    urlPrefix = urlPrefix.endsWith("/") ? urlPrefix : urlPrefix + "/";
+                    result.class.forEach((item) => {
+                        const modifiedTypeId = urlPrefix + item.type_id;
+                        if (result.filters.hasOwnProperty(item.type_id)) {
+                            result.filters[modifiedTypeId] = result.filters[item.type_id];
+                            delete result.filters[item.type_id]
+                        }
+                        item.type_id = urlPrefix + item.type_id;
+                    })
+                }
                 $("#top-carousel .box-item-list .box-item:not(.splide__slide--clone)").each(function () {
                     result.list.push({
                         vod_id: getIdFromHref($(this).find("a").attr("href")),
@@ -212,8 +225,14 @@ $(document).ready(function () {
             }
         };
     })();
-    if (typeof (GmSpiderProxy) === 'undefined') {
-        alert(JSON.stringify(GmSpider.detailContent(["snis-539"])));
+    if ($("#cf-wrapper").length > 0) {
+        if (typeof (GmSpiderShow) === 'undefined') {
+            console.log("源站不可用:" + $('title').text());
+        } else {
+            GM_toastLong("源站不可用:" + $('title').text());
+        }
+    } else if (typeof (GmSpiderProxy) === 'undefined') {
+        console.log(GmSpider.homeContent([true]));
     } else {
         GmSpiderProxy(GmSpider);
     }
