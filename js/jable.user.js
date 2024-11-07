@@ -31,7 +31,7 @@ $(document).ready(function () {
         }
 
         return {
-            homeContent: function () {
+            homeContent: function (filter) {
                 const result = {
                     class: [
                         {type_id: "latest-updates", type_name: "最近更新"},
