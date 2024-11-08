@@ -7,6 +7,7 @@
 // @match        https://njav.tv/*
 // @match        https://javplayer.me/*
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js
+// @require      https://github.com/kapetan/jquery-observe/raw/refs/heads/master/jquery-observe.js
 // ==/UserScript==
 console.log('nJAV user scrpit');
 $(document).ready(function () {
@@ -88,6 +89,14 @@ $(document).ready(function () {
             return data.stream;
         }
 
+        function formatDetail(detail, ...keys) {
+            let format = "";
+            for (let key of keys) {
+                format += key in detail ? (Array.isArray(detail[key]) ? detail[key].join(" ") : detail[key]) : "";
+            }
+            return format;
+        }
+
 
         return {
             homeContent: function () {
@@ -135,7 +144,6 @@ $(document).ready(function () {
                         vod_pic: $(this).find("img").attr("src"),
                     })
                 });
-                console.log(JSON.stringify(result));
                 return result;
             },
             categoryContent: function (tid, pg, filter, extend) {
@@ -152,7 +160,6 @@ $(document).ready(function () {
                         result.list.push({
                             vod_id: $(this).find("a").attr("href"),
                             vod_name: $(this).find(".name").text(),
-                            vod_pic: "https://i.ibb.co/7jb5Gv5/jable-tags-square.png",
                             vod_remarks: $(this).find(".text-muted").text(),
                             vod_tag: "folder",
                             style: {
@@ -165,15 +172,15 @@ $(document).ready(function () {
                 } else {
                     pageList(result);
                 }
-                console.log(JSON.stringify(result));
                 return result;
             },
             detailContent: function (ids) {
+                const playUrl = $("#player iframe").get(0).src;
                 let detail = {};
                 $("#details .detail-item div").each(function (item) {
                     const key = $(this).find("span:first").text().replace(":", "");
                     if ($(this).find("span:eq(1) a").length === 0) {
-                        detail[key] = $(this).find("span:eq(1)").text();
+                        detail[key] = $(this).find("span:eq(1)").text().trim();
                     } else {
                         detail[key] = [];
                         $(this).find("span:eq(1) a").each(function () {
@@ -186,30 +193,27 @@ $(document).ready(function () {
                 const vod = {
                     vod_id: ids[0],
                     vod_name: $(".favourite:first").data("code"),
-                    vod_pic: $("#player").attr("poster"),
-                    vod_year: detail["发布日期"],
-                    vod_remarks: detail["类型"].join(" "),
-                    vod_director: detail["制作者"].join(" ") + " " + detail["标签"].join(" "),
-                    vod_actor: detail["演员"].join(" "),
-                    vod_content: $(".justify-content-between").text(),
+                    vod_pic: $("#player").data("poster"),
+                    vod_year: formatDetail(detail, "发布日期"),
+                    vod_remarks: formatDetail(detail, "类型"),
+                    vod_director: formatDetail(detail, "制作者", "标签"),
+                    vod_actor: formatDetail(detail, "演员"),
+                    vod_content: $(".justify-content-between.align-items-start h1").text().trim(),
                     vod_play_from: "nJAV",
-                    vod_play_url: "720P$" + $($("#player").get(0).innerHTML).attr("src"),
+                    vod_play_url: "720P$" + playUrl,
                 };
-                console.log(JSON.stringify({list: [vod]}))
                 return {list: [vod]};
             },
             playerContent: function (flag, id, vipFlags) {
                 console.log(flag, id, vipFlags);
                 const playUrl = eval($("#player").attr("v-scope"));
-                const result = {
+                return {
                     header: JSON.stringify({
                         "User-Agent": window.navigator.userAgent,
                         "Referer": "https://javplayer.me/"
                     }),
                     url: playUrl
-                }
-                console.log(JSON.stringify(result));
-                return result;
+                };
             },
             searchContent: function (key, quick, pg) {
                 const result = {
@@ -219,21 +223,23 @@ $(document).ready(function () {
                     page: pg,
                     pagecount: 0
                 };
-                pageList(result);
-                console.log(JSON.stringify(result));
-                return result;
+                return pageList(result);
             }
         };
     })();
-    if ($("#cf-wrapper").length > 0) {
-        if (typeof (GmSpiderShow) === 'undefined') {
-            console.log("源站不可用:" + $('title').text());
-        } else {
+    if (typeof (GmSpiderProxy) !== 'undefined'){
+        if ($("#cf-wrapper").length > 0) {
             GM_toastLong("源站不可用:" + $('title').text());
+            GmSpiderSuspend();
         }
-    } else if (typeof (GmSpiderProxy) === 'undefined') {
-        console.log(GmSpider.homeContent([true]));
-    } else {
-        GmSpiderProxy(GmSpider);
+        if (GmSpiderArgs[0] === "detailContent" && $("#player iframe").length === 0) {
+            $('#player').observe('childlist', function (record) {
+                GmSpiderProxy(GmSpider);
+            })
+        } else {
+            GmSpiderProxy(GmSpider);
+        }
+    }else{
+        console.log(GmSpider.playerContent(["cnd-017-uncensored-leaked"]));
     }
 });

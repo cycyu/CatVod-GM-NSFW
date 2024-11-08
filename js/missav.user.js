@@ -108,7 +108,7 @@ $(document).ready(function () {
         function formatDetail(detail, ...keys) {
             let format = "";
             for (let key of keys) {
-                format += key in detail ? detail[key].join(" ") : "";
+                format += key in detail ? (Array.isArray(detail[key]) ? detail[key].join(" ") : detail[key]): "";
             }
             return format;
         }

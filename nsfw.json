@@ -72,10 +72,11 @@
             "*.jpg",
             "*.vtt",
             "*.css*",
-            "https://fonts.googleapis.com/*",
-            "https://www.googletagmanager.com/*",
+            "https://*.googleapis.com/*",
+            "https://*.googletagmanager.com/*",
             "https://*.recombee.com/*",
             "https://*.google-analytics.com/*",
+            "https://njav.tv/recomm/items/*",
             "https://javplayer.me/assets/media/dist/app.js*"
           ]
         },

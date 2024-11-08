@@ -132,7 +132,6 @@ $(document).ready(function () {
                             result.list.push({
                                 vod_id: url[1] + "/" + url[2],
                                 vod_name: $(this).text(),
-                                vod_pic: "https://i.ibb.co/7jb5Gv5/jable-tags-square.png",
                                 vod_remarks: remark,
                                 vod_tag: "folder",
                             })
