@@ -108,7 +108,7 @@ $(document).ready(function () {
         function formatDetail(detail, ...keys) {
             let format = "";
             for (let key of keys) {
-                format += key in detail ? (Array.isArray(detail[key]) ? detail[key].join(" ") : detail[key]): "";
+                format += key in detail ? (Array.isArray(detail[key]) ? detail[key].join(" ") : detail[key]) : "";
             }
             return format;
         }
@@ -157,8 +157,8 @@ $(document).ready(function () {
                     $(".gap-4 .space-y-4").each(function () {
                         result.list.push({
                             vod_id: getCategoryFromUrl($(this).find(".space-y-2 a").attr("href")),
-                            vod_name: $(this).find("img").attr("alt"),
-                            vod_pic: $(this).find("img").attr("src"),
+                            vod_name: $(this).find(".truncate").text().trim(),
+                            vod_pic: $(this).find("img").length > 0 ? $(this).find("img").attr("src") : "",
                             vod_remarks: $(this).find(".text-sm").text().trim(),
                             vod_tag: "folder",
                             style: {
@@ -249,7 +249,7 @@ $(document).ready(function () {
             GmSpiderSuspend();
         }
     } else if (typeof (GmSpiderProxy) === 'undefined') {
-        console.log(GmSpider.searchContent("455", 1));
+        console.log(GmSpider.categoryContent("actresses/ranking", 1));
     } else {
         GmSpiderProxy(GmSpider);
     }

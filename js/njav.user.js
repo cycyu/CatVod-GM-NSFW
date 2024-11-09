@@ -129,12 +129,14 @@ $(document).ready(function () {
                     let urlPrefix = canonical.replace(base, "");
                     urlPrefix = urlPrefix.endsWith("/") ? urlPrefix : urlPrefix + "/";
                     result.class.forEach((item) => {
-                        const modifiedTypeId = urlPrefix + item.type_id;
-                        if (result.filters.hasOwnProperty(item.type_id)) {
-                            result.filters[modifiedTypeId] = result.filters[item.type_id];
-                            delete result.filters[item.type_id]
+                        if (item.type_id !== "genres") {
+                            const modifiedTypeId = urlPrefix + item.type_id;
+                            if (result.filters.hasOwnProperty(item.type_id)) {
+                                result.filters[modifiedTypeId] = result.filters[item.type_id];
+                                delete result.filters[item.type_id]
+                            }
+                            item.type_id = urlPrefix + item.type_id;
                         }
-                        item.type_id = urlPrefix + item.type_id;
                     })
                 }
                 $("#top-carousel .box-item-list .box-item:not(.splide__slide--clone)").each(function () {
@@ -227,7 +229,7 @@ $(document).ready(function () {
             }
         };
     })();
-    if (typeof (GmSpiderProxy) !== 'undefined'){
+    if (typeof (GmSpiderProxy) !== 'undefined') {
         if ($("#cf-wrapper").length > 0) {
             GM_toastLong("源站不可用:" + $('title').text());
             GmSpiderSuspend();
@@ -239,7 +241,7 @@ $(document).ready(function () {
         } else {
             GmSpiderProxy(GmSpider);
         }
-    }else{
+    } else {
         console.log(GmSpider.playerContent(["cnd-017-uncensored-leaked"]));
     }
 });
