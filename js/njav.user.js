@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nJAV
 // @namespace    gmspider
-// @version      1.0
+// @version      2024.11.12
 // @description  nJAV的gmspider
 // @author       Luomo
 // @match        https://njav.tv/*
@@ -9,8 +9,18 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js
 // @require      https://github.com/kapetan/jquery-observe/raw/refs/heads/master/jquery-observe.js
 // ==/UserScript==
-console.log('nJAV user scrpit');
-$(document).ready(function () {
+console.log(JSON.stringify(GM_info));
+(function () {
+    const GMSpiderArgs = {};
+    if (typeof GmSpiderInject !== 'undefined') {
+        let args = JSON.parse(GmSpiderInject.GetSpiderArgs());
+        GMSpiderArgs.fName = args.shift();
+        GMSpiderArgs.fArgs = args;
+    } else {
+        GMSpiderArgs.fName = "homeContent";
+        GMSpiderArgs.fArgs = [true];
+    }
+    Object.freeze(GMSpiderArgs);
     const GmSpider = (function () {
         const filter = {
             key: "filter",
@@ -229,19 +239,17 @@ $(document).ready(function () {
             }
         };
     })();
-    if (typeof (GmSpiderProxy) !== 'undefined') {
+    $(document).ready(function () {
+        let result = "";
         if ($("#cf-wrapper").length > 0) {
+            console.log("源站不可用:" + $('title').text());
             GM_toastLong("源站不可用:" + $('title').text());
-            GmSpiderSuspend();
-        }
-        if (GmSpiderArgs[0] === "detailContent" && $("#player iframe").length === 0) {
-            $('#player').observe('childlist', function (record) {
-                GmSpiderProxy(GmSpider);
-            })
         } else {
-            GmSpiderProxy(GmSpider);
+            result = GmSpider[GMSpiderArgs.fName](...GMSpiderArgs.fArgs);
         }
-    } else {
-        console.log(GmSpider.playerContent(["cnd-017-uncensored-leaked"]));
-    }
-});
+        console.log(result);
+        if (typeof GmSpiderInject !== 'undefined') {
+            GmSpiderInject.SetSpiderResult(JSON.stringify(result));
+        }
+    });
+})();

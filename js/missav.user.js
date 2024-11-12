@@ -1,14 +1,24 @@
 // ==UserScript==
 // @name         MissAV
 // @namespace    gmspider
-// @version      1.0
+// @version      2024.11.12
 // @description  MissAV的gmspider
 // @author       Luomo
 // @match        https://missav.com/*
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js
 // ==/UserScript==
-console.log('MissAV user scrpit');
-$(document).ready(function () {
+console.log(JSON.stringify(GM_info));
+(function () {
+    const GMSpiderArgs = {};
+    if (typeof GmSpiderInject !== 'undefined') {
+        let args = JSON.parse(GmSpiderInject.GetSpiderArgs());
+        GMSpiderArgs.fName = args.shift();
+        GMSpiderArgs.fArgs = args;
+    } else {
+        GMSpiderArgs.fName = "homeContent";
+        GMSpiderArgs.fArgs = [true];
+    }
+    Object.freeze(GMSpiderArgs);
     const GmSpider = (function () {
         const filter = {
             key: "filter",
@@ -241,16 +251,17 @@ $(document).ready(function () {
             }
         };
     })();
-    if ($("#cf-wrapper").length > 0) {
-        if (typeof (GmSpiderShow) === 'undefined') {
+    $(document).ready(function () {
+        let result = "";
+        if ($("#cf-wrapper").length > 0) {
             console.log("源站不可用:" + $('title').text());
-        } else {
             GM_toastLong("源站不可用:" + $('title').text());
-            GmSpiderSuspend();
+        } else {
+            result = GmSpider[GMSpiderArgs.fName](...GMSpiderArgs.fArgs);
         }
-    } else if (typeof (GmSpiderProxy) === 'undefined') {
-        console.log(GmSpider.categoryContent("actresses/ranking", 1));
-    } else {
-        GmSpiderProxy(GmSpider);
-    }
-});
+        console.log(result);
+        if (typeof GmSpiderInject !== 'undefined') {
+            GmSpiderInject.SetSpiderResult(JSON.stringify(result));
+        }
+    });
+})();

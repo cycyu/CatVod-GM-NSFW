@@ -1,13 +1,24 @@
 // ==UserScript==
 // @name         Jable
 // @namespace    gmspider
-// @version      1.0
+// @version      2024.11.12
 // @description  Jable的gmspider
 // @author       Luomo
 // @match        https://jable.tv/*
+// @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // ==/UserScript==
-console.log('jable user scrpit');
-$(document).ready(function () {
+console.log(JSON.stringify(GM_info));
+(function () {
+    const GMSpiderArgs = {};
+    if (typeof GmSpiderInject !== 'undefined') {
+        let args = JSON.parse(GmSpiderInject.GetSpiderArgs());
+        GMSpiderArgs.fName = args.shift();
+        GMSpiderArgs.fArgs = args;
+    } else {
+        GMSpiderArgs.fName = "homeContent";
+        GMSpiderArgs.fArgs = [true];
+    }
+    Object.freeze(GMSpiderArgs);
     const GmSpider = (function () {
         function listVideos(result) {
             result.total = parseInt($(".content-header .title-box .inactive-color").text());
@@ -102,7 +113,7 @@ $(document).ready(function () {
             },
             categoryContent: function (tid, pg, filter, extend) {
                 console.log(tid, pg, filter, JSON.stringify(extend));
-                const result = {
+                let result = {
                     list: [],
                     limit: 24,
                     total: 0,
@@ -192,9 +203,18 @@ $(document).ready(function () {
             }
         };
     })();
-    if (typeof (GmSpiderProxy) === 'undefined') {
-        // console.log(GmSpider.detailContent(["meyd-707"]));
-    } else {
-        GmSpiderProxy(GmSpider);
-    }
-});
+    $(document).ready(function () {
+        let result = "";
+        if ($("#cf-wrapper").length > 0) {
+            console.log("源站不可用:" + $('title').text());
+            GM_toastLong("源站不可用:" + $('title').text());
+        } else {
+            result = GmSpider[GMSpiderArgs.fName](...GMSpiderArgs.fArgs);
+        }
+        console.log(result);
+        if (typeof GmSpiderInject !== 'undefined') {
+            GmSpiderInject.SetSpiderResult(JSON.stringify(result));
+        }
+    });
+})();
+
